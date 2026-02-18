@@ -1,0 +1,14 @@
+[Unit]
+Description=Unsplash Daily Wallpaper Changer
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+Type=oneshot
+User=%u
+Environment="UNSPLASH_ACCESS_KEY=dein_api_key_hier"
+ExecStart=/usr/bin/python3 %h/projekte/background-changer/change_wallpaper.py
+WorkingDirectory=%h/projekte/background-changer
+
+[Install]
+WantedBy=default.target

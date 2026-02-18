@@ -1,0 +1,10 @@
+[Unit]
+Description=Unsplash Daily Wallpaper Changer Timer
+Requires=wallpaper-changer.service
+
+[Timer]
+OnCalendar=daily
+Persistent=true
+
+[Install]
+WantedBy=timers.target
