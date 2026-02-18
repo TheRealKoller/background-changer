@@ -55,16 +55,18 @@ UNSPLASH_ACCESS_KEY=dein_echter_api_key
 Teste das Script manuell:
 
 ```bash
-export UNSPLASH_ACCESS_KEY=dein_api_key
 python3 change_wallpaper.py
 ```
+
+Das Script lädt die `.env` Datei automatisch - keine Umgebungsvariablen nötig!
 
 ## Automatische tägliche Ausführung
 
 ### Option 1: Systemd Timer (empfohlen)
 
-1. Bearbeite `wallpaper-changer.service` und trage deinen API Key ein
-2. Kopiere die Service-Dateien:
+**Hinweis:** Da das Script die `.env` Datei automatisch lädt, brauchst du den API Key nicht in der Service-Datei einzutragen. Du kannst die Dateien direkt verwenden.
+
+1. Kopiere die Service-Dateien:
 
 ```bash
 mkdir -p ~/.config/systemd/user/
@@ -72,21 +74,21 @@ cp wallpaper-changer.service ~/.config/systemd/user/
 cp wallpaper-changer.timer ~/.config/systemd/user/
 ```
 
-3. Aktiviere und starte den Timer:
+2. Aktiviere und starte den Timer:
 
 ```bash
 systemctl --user enable wallpaper-changer.timer
 systemctl --user start wallpaper-changer.timer
 ```
 
-4. Überprüfe den Status:
+3. Überprüfe den Status:
 
 ```bash
 systemctl --user status wallpaper-changer.timer
 systemctl --user list-timers
 ```
 
-5. Manuell ausführen zum Testen:
+4. Manuell ausführen zum Testen:
 
 ```bash
 systemctl --user start wallpaper-changer.service
@@ -103,8 +105,10 @@ crontab -e
 Füge folgende Zeile hinzu (läuft täglich um 9:00 Uhr):
 
 ```
-0 9 * * * export UNSPLASH_ACCESS_KEY=dein_api_key && /usr/bin/python3 /home/dein_benutzer/projekte/background-changer/change_wallpaper.py
+0 9 * * * /usr/bin/python3 /home/dein_benutzer/projekte/background-changer/change_wallpaper.py
 ```
+
+Das Script lädt die `.env` Datei automatisch, keine Umgebungsvariablen nötig.
 
 ## Konfiguration
 
@@ -149,7 +153,12 @@ Das Script unterstützt automatisch:
 
 ### "UNSPLASH_ACCESS_KEY nicht gesetzt"
 
-Stelle sicher, dass die Umgebungsvariable gesetzt ist oder verwende die `.env` Datei.
+Stelle sicher, dass die `.env` Datei im Projektverzeichnis existiert und deinen API Key enthält:
+
+```bash
+cp .env.example .env
+# Bearbeite .env und trage deinen API Key ein
+```
 
 ### Hintergrundbild wird nicht gesetzt
 
