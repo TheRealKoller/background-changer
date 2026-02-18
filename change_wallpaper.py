@@ -10,6 +10,21 @@ import subprocess
 from pathlib import Path
 from datetime import datetime
 
+# .env Datei laden falls vorhanden
+def load_env():
+    """Lädt Umgebungsvariablen aus .env Datei."""
+    env_file = Path(__file__).parent / '.env'
+    if env_file.exists():
+        with open(env_file) as f:
+            for line in f:
+                line = line.strip()
+                # Überspringe Kommentare und leere Zeilen
+                if line and not line.startswith('#'):
+                    key, _, value = line.partition('=')
+                    os.environ[key.strip()] = value.strip()
+
+load_env()
+
 # Konfiguration
 UNSPLASH_ACCESS_KEY = os.getenv('UNSPLASH_ACCESS_KEY', '')
 WALLPAPER_DIR = Path.home() / '.local' / 'share' / 'wallpapers'
@@ -35,7 +50,7 @@ def download_unsplash_image():
     if not UNSPLASH_ACCESS_KEY:
         raise ValueError(
             "UNSPLASH_ACCESS_KEY nicht gesetzt. "
-            "Bitte Umgebungsvariable setzen oder .env Datei erstellen."
+            "Bitte .env Datei erstellen (siehe .env.example)."
         )
     
     # API-Parameter
