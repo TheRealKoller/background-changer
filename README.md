@@ -2,6 +2,8 @@
 
 Ein Python-Script, das täglich ein zufälliges Bild von Unsplash herunterlädt und als Hintergrundbild einrichtet.
 
+> **Hinweis:** Dieses Projekt wurde vollständig mit KI erstellt - entwickelt mit [OpenCode](https://opencode.ai) und Claude Sonnet 4.5.
+
 ## Features
 
 - Lädt täglich automatisch ein neues Bild von Unsplash
@@ -185,3 +187,7 @@ MIT License - Frei verwendbar für private und kommerzielle Zwecke.
 ## Credits
 
 Bilder von [Unsplash](https://unsplash.com) - Kostenlose hochqualitative Fotos.
+
+---
+
+**Entwickelt mit KI:** Dieses komplette Projekt wurde mit [OpenCode](https://opencode.ai) und Claude Sonnet 4.5 erstellt.
