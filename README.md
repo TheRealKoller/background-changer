@@ -139,6 +139,7 @@ WALLPAPER_DIR = Path.home() / '.local' / 'share' / 'wallpapers'
 
 Das Script unterstützt automatisch:
 
+- **COSMIC**: Verwendet `cosmic-bg` oder `gsettings`
 - **GNOME/Ubuntu**: Verwendet `gsettings`
 - **KDE Plasma**: Verwendet `qdbus`
 - **XFCE**: Verwendet `xfconf-query`

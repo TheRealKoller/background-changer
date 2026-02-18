@@ -101,6 +101,39 @@ def download_unsplash_image():
     return CURRENT_WALLPAPER
 
 
+def set_wallpaper_cosmic(image_path):
+    """Setzt das Hintergrundbild für COSMIC Desktop."""
+    # COSMIC verwendet cosmic-settings
+    # Versuche verschiedene Methoden
+    try:
+        # Methode 1: cosmic-bg (falls verfügbar)
+        result = subprocess.run(['cosmic-bg', str(image_path)], 
+                              capture_output=True, timeout=5)
+        if result.returncode == 0:
+            print("Hintergrundbild für COSMIC gesetzt (cosmic-bg).")
+            return
+    except (FileNotFoundError, subprocess.TimeoutExpired):
+        pass
+    
+    # Methode 2: Versuche GNOME gsettings (COSMIC könnte kompatibel sein)
+    try:
+        subprocess.run([
+            'gsettings', 'set', 'org.gnome.desktop.background', 
+            'picture-uri', f'file://{image_path}'
+        ], check=True, timeout=5)
+        subprocess.run([
+            'gsettings', 'set', 'org.gnome.desktop.background', 
+            'picture-uri-dark', f'file://{image_path}'
+        ], timeout=5)
+        print("Hintergrundbild für COSMIC gesetzt (gsettings).")
+        return
+    except (FileNotFoundError, subprocess.CalledProcessError, subprocess.TimeoutExpired):
+        pass
+    
+    # Wenn nichts funktioniert, werfe einen Fehler
+    raise FileNotFoundError("Konnte kein unterstütztes Tool für COSMIC finden")
+
+
 def set_wallpaper_gnome(image_path):
     """Setzt das Hintergrundbild für GNOME/Ubuntu."""
     subprocess.run([
@@ -151,7 +184,9 @@ def detect_and_set_wallpaper(image_path):
     desktop_env = os.environ.get('XDG_CURRENT_DESKTOP', '').lower()
     
     try:
-        if 'gnome' in desktop_env or 'ubuntu' in desktop_env:
+        if 'cosmic' in desktop_env:
+            set_wallpaper_cosmic(image_path)
+        elif 'gnome' in desktop_env or 'ubuntu' in desktop_env:
             set_wallpaper_gnome(image_path)
         elif 'kde' in desktop_env or 'plasma' in desktop_env:
             set_wallpaper_kde(image_path)
@@ -164,6 +199,8 @@ def detect_and_set_wallpaper(image_path):
     except FileNotFoundError as e:
         print(f"Fehler: Benötigtes Tool nicht gefunden. {e}")
         print("Bitte installiere die entsprechenden Tools für deine Desktop-Umgebung.")
+        print(f"\nFür COSMIC: Das Bild wurde heruntergeladen nach: {image_path}")
+        print("Du kannst es manuell in den COSMIC Einstellungen setzen.")
     except Exception as e:
         print(f"Fehler beim Setzen des Hintergrundbilds: {e}")
 
