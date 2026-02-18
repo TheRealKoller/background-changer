@@ -103,19 +103,44 @@ def download_unsplash_image():
 
 def set_wallpaper_cosmic(image_path):
     """Setzt das Hintergrundbild für COSMIC Desktop."""
-    # COSMIC verwendet cosmic-settings
-    # Versuche verschiedene Methoden
-    try:
-        # Methode 1: cosmic-bg (falls verfügbar)
-        result = subprocess.run(['cosmic-bg', str(image_path)], 
-                              capture_output=True, timeout=5)
-        if result.returncode == 0:
-            print("Hintergrundbild für COSMIC gesetzt (cosmic-bg).")
-            return
-    except (FileNotFoundError, subprocess.TimeoutExpired):
-        pass
+    # COSMIC speichert Wallpaper-Konfiguration in RON-Dateien
+    cosmic_config_dir = Path.home() / '.config' / 'cosmic' / 'com.system76.CosmicBackground' / 'v1'
     
-    # Methode 2: Versuche GNOME gsettings (COSMIC könnte kompatibel sein)
+    if cosmic_config_dir.exists():
+        # RON-Format für COSMIC Background
+        ron_content = f"""(
+    output: "all",
+    source: Path("{image_path}"),
+    filter_by_theme: true,
+    rotation_frequency: 300,
+    filter_method: Lanczos,
+    scaling_mode: Zoom,
+    sampling_method: Alphanumeric,
+)"""
+        
+        # Schreibe die Konfiguration
+        all_config = cosmic_config_dir / 'all'
+        with open(all_config, 'w') as f:
+            f.write(ron_content)
+        
+        # Optional: same-on-all Datei aktualisieren falls vorhanden
+        same_on_all = cosmic_config_dir / 'same-on-all'
+        if same_on_all.exists():
+            with open(same_on_all, 'w') as f:
+                f.write("true")
+        
+        print("Hintergrundbild für COSMIC gesetzt (RON-Konfiguration).")
+        
+        # Versuche COSMIC Background neu zu laden
+        try:
+            # cosmic-bg könnte helfen die Änderungen zu übernehmen
+            subprocess.run(['cosmic-bg'], timeout=2, capture_output=True)
+        except (FileNotFoundError, subprocess.TimeoutExpired):
+            pass
+        
+        return
+    
+    # Fallback: Versuche GNOME gsettings (funktioniert bei manchen COSMIC-Versionen)
     try:
         subprocess.run([
             'gsettings', 'set', 'org.gnome.desktop.background', 
