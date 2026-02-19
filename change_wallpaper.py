@@ -33,10 +33,9 @@ CURRENT_WALLPAPER = WALLPAPER_DIR / 'current_wallpaper.jpg'
 # Unsplash API Konfiguration
 UNSPLASH_API_URL = 'https://api.unsplash.com/photos/random'
 
-# Optional: Kategorien für Bilder (kann angepasst werden)
-# Beispiele: 'nature', 'landscape', 'architecture', 'minimal'
-QUERY = 'nature,landscape'
-ORIENTATION = 'landscape'  # 'landscape', 'portrait', oder 'squarish'
+# Bildkategorien und Ausrichtung aus .env laden (mit Fallback zu Defaults)
+QUERY = os.getenv('WALLPAPER_QUERY', 'nature,landscape')
+ORIENTATION = os.getenv('WALLPAPER_ORIENTATION', 'landscape')
 
 
 def setup_directories():
