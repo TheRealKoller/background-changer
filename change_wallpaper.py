@@ -204,6 +204,76 @@ def set_wallpaper_feh(image_path):
     print("Hintergrundbild mit feh gesetzt.")
 
 
+def set_login_wallpaper_cosmic(image_path):
+    """Setzt das Hintergrundbild für den COSMIC Greeter (Login-Bildschirm)."""
+    try:
+        # Verwende cosmic-greeter-config CLI tool (falls verfügbar)
+        result = subprocess.run(
+            ['cosmic-greeter-config', 'background', str(image_path)],
+            capture_output=True,
+            timeout=5
+        )
+        if result.returncode == 0:
+            print("Login-Hintergrundbild für COSMIC Greeter gesetzt.")
+            return True
+    except (FileNotFoundError, subprocess.TimeoutExpired):
+        pass
+    
+    # Alternative: Verwende dbus um mit cosmic-greeter-daemon zu kommunizieren
+    try:
+        # Kopiere das Bild in ein systemweites Verzeichnis
+        system_wallpaper_dir = Path('/usr/share/backgrounds/cosmic')
+        if not system_wallpaper_dir.exists():
+            # Erstelle Anleitung für manuelles Setup
+            print("\nUm den Login-Hintergrund für COSMIC Greeter zu setzen:")
+            print(f"1. Kopiere das Bild in ein systemweites Verzeichnis:")
+            print(f"   sudo mkdir -p /usr/share/backgrounds/cosmic")
+            print(f"   sudo cp {image_path} /usr/share/backgrounds/cosmic/login-wallpaper.jpg")
+            print(f"2. Der COSMIC Greeter sollte das Bild dann automatisch verwenden.")
+            return False
+        
+        # Wenn das Verzeichnis existiert, versuche das Bild zu kopieren
+        system_wallpaper = system_wallpaper_dir / 'login-wallpaper.jpg'
+        result = subprocess.run(
+            ['sudo', 'cp', str(image_path), str(system_wallpaper)],
+            timeout=10
+        )
+        if result.returncode == 0:
+            print("Login-Hintergrundbild für COSMIC Greeter gesetzt.")
+            return True
+    except Exception as e:
+        print(f"Konnte Login-Hintergrund nicht automatisch setzen: {e}")
+    
+    return False
+
+
+def set_login_wallpaper_gdm(image_path):
+    """Setzt das Hintergrundbild für GDM (GNOME Display Manager)."""
+    # GDM verwendet AccountsService
+    # Dies erfordert root-Rechte, daher erstellen wir nur eine Datei die ein Admin später installieren kann
+    user = os.environ.get('USER', os.environ.get('LOGNAME', ''))
+    
+    # AccountsService Hintergrund
+    accountsservice_bg = Path(f'/var/lib/AccountsService/users/{user}')
+    
+    # Überprüfe ob AccountsService existiert
+    if not Path('/var/lib/AccountsService').exists():
+        return False
+    
+    # Erstelle eine temporäre Konfiguration die mit sudo kopiert werden kann
+    temp_config = WALLPAPER_DIR / 'gdm-background-config.txt'
+    with open(temp_config, 'w') as f:
+        f.write(f"[User]\n")
+        f.write(f"Background={image_path}\n")
+    
+    print(f"GDM Konfiguration erstellt: {temp_config}")
+    print(f"Um den Login-Hintergrund für GDM zu setzen, führe aus:")
+    print(f"  sudo cp {temp_config} {accountsservice_bg}")
+    print(f"  sudo chmod 644 {accountsservice_bg}")
+    
+    return True
+
+
 def detect_and_set_wallpaper(image_path):
     """Erkennt die Desktop-Umgebung und setzt das Hintergrundbild entsprechend."""
     desktop_env = os.environ.get('XDG_CURRENT_DESKTOP', '').lower()
@@ -230,6 +300,29 @@ def detect_and_set_wallpaper(image_path):
         print(f"Fehler beim Setzen des Hintergrundbilds: {e}")
 
 
+def detect_and_set_login_wallpaper(image_path):
+    """Erkennt den Login-Manager und setzt das Login-Hintergrundbild."""
+    desktop_env = os.environ.get('XDG_CURRENT_DESKTOP', '').lower()
+    
+    print("\n--- Login-Hintergrund setzen ---")
+    
+    success = False
+    
+    # Versuche COSMIC Greeter
+    if 'cosmic' in desktop_env:
+        success = set_login_wallpaper_cosmic(image_path)
+        if success:
+            return
+    
+    # Versuche GDM (wird auch von COSMIC manchmal verwendet)
+    if set_login_wallpaper_gdm(image_path):
+        success = True
+    
+    if not success:
+        print("Login-Hintergrund konnte nicht automatisch gesetzt werden.")
+        print(f"Das Bild ist verfügbar unter: {image_path}")
+
+
 def main():
     """Hauptfunktion."""
     try:
@@ -237,7 +330,8 @@ def main():
         setup_directories()
         image_path = download_unsplash_image()
         detect_and_set_wallpaper(image_path)
-        print("Fertig!")
+        detect_and_set_login_wallpaper(image_path)
+        print("\nFertig!")
     except Exception as e:
         print(f"Fehler: {e}")
         exit(1)

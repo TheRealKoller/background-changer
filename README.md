@@ -7,7 +7,8 @@ Ein Python-Script, das täglich ein zufälliges Bild von Unsplash herunterlädt 
 ## Features
 
 - Lädt täglich automatisch ein neues Bild von Unsplash
-- Unterstützt GNOME, KDE Plasma, XFCE und feh (für i3, bspwm, etc.)
+- Unterstützt COSMIC, GNOME, KDE Plasma, XFCE und feh (für i3, bspwm, etc.)
+- **NEU:** Login-Hintergrund Support für COSMIC Greeter
 - Konfigurierbare Bildkategorien und Ausrichtung
 - Speichert Metadaten zum aktuellen Hintergrundbild
 
@@ -61,6 +62,18 @@ python3 change_wallpaper.py
 ```
 
 Das Script lädt die `.env` Datei automatisch - keine Umgebungsvariablen nötig!
+
+### 5. Login-Hintergrund einrichten (COSMIC)
+
+Um auch den Login-Bildschirm (COSMIC Greeter) zu ändern, führe einmalig aus:
+
+```bash
+./setup-login-wallpaper.sh
+```
+
+Dies kopiert das aktuelle Wallpaper nach `/usr/share/backgrounds/cosmic/` und setzt es als Login-Hintergrund.
+
+**Hinweis:** Nach jedem Wallpaper-Wechsel muss das Setup-Script erneut ausgeführt werden, um auch den Login-Hintergrund zu aktualisieren.
 
 ## Automatische tägliche Ausführung
 
